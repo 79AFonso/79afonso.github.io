@@ -8,6 +8,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
     <link href="https://js.arcgis.com/4.14/esri/css/main.css" rel="stylesheet" type="text/css">
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-database.js"></script>
     <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/dojo/nls/dojo_pt-pt.js"></script>
     <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/MapView.js"></script>
     <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/widgets/Home.js"></script>
@@ -43,24 +46,24 @@
     var locs =
     [
     {
-    "APId" : "ap34",
+    "apName" : "ap34",
     "long": -8.659532,
     "lat": 40.632902 ,
-    "media": 5,
+    "piso": 5,
     "people": 6
     },
     {
-    "APId" : "ap21",
+    "apName" : "ap21",
     "long": -8.659132,
     "lat": 40.632502 ,
-    "media": 9,
+    "piso": 9,
     "people": 10
     },
     {
-    "APId" : "ap5",
+    "apName" : "ap5",
     "long": -8.659232,
     "lat": 40.632802 ,
-    "media": 12,
+    "piso": 12,
     "people": 16
     }
     ]
@@ -68,27 +71,34 @@
     var locs_Piso3 =
     [
     {
-    "APId" : "ap1",
+    "apName" : "ap1",
     "long": -8.6591881,
     "lat": 40.6329285 ,
-    "media": 3,
+    "piso": 3,
     "people": 6
     },
     {
-    "APId" : "ap2",
+    "apName" : "ap2",
     "long": -8.6592559,
     "lat": 40.6331473 ,
-    "media": 7,
+    "piso": 7,
     "people": 10
     },
     {
-    "APId" : "ap3",
+    "apName" : "ap3",
     "long": -8.6594563,
     "lat": 40.6331738 ,
-    "media": 6,
+    "piso": 6,
     "people": 14
     }
     ]
+
+    var locs_APS = []
+    var locs_Piso_1 = []
+    var locs_Piso_2 = []
+    var locs_Piso_3 = []
+    var locs_Piso_4 = []
+    var locs_Piso_5 = []
 
     require([
     "esri/Map",
@@ -111,6 +121,88 @@
             center: [-8.659132, 40.632902], //Longitude, latitude
             map: map
         });
+
+        var firebaseConfig = {
+        apiKey: "AIzaSyAGlltLGv62NuK7A0Af1TUE2SrE2x1pW4A",
+        authDomain: "detiwall-pei.firebaseapp.com",
+        databaseURL: "https://detiwall-pei-default-rtdb.firebaseio.com",
+        projectId: "detiwall-pei",
+        storageBucket: "detiwall-pei.appspot.com",
+        messagingSenderId: "251921800960",
+        appId: "1:251921800960:web:ae6613c0a2c38220041de5",
+        measurementId: "G-K70JYWB1R3"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var firebaseRef = firebase.database().ref("localizacao");
+        firebaseRef.once("value", function(snapshot){
+            var data = snapshot.val();
+            for(let i in data){
+                if ((!isNaN(data[i].latitude) && !data[i].latitude.length==0) && (!isNaN(data[i].longitude) && !data[i].longitude.length==0)){
+                    if(data[i].Piso==="1"){
+                        locs_Piso_1.push({
+                            "apId": data[i].id,
+                            "apName": data[i].name,
+                            "long": data[i].longitude,
+                            "lat": data[i].latitude,
+                            "Piso": data[i].Piso,
+                            "people": Math.floor(Math.random() * 21)
+                        })
+                    }
+                    else if(data[i].Piso=="2"){
+                        locs_Piso_2.push({
+                            "apId": data[i].id,
+                            "apName": data[i].name,
+                            "long": data[i].longitude,
+                            "lat": data[i].latitude,
+                            "Piso": data[i].Piso,
+                            "people": Math.floor(Math.random() * 21)
+                        })
+                    }
+                    else if(data[i].Piso=="3"){
+                        locs_Piso_3.push({
+                            "apId": data[i].id,
+                            "apName": data[i].name,
+                            "long": data[i].longitude,
+                            "lat": data[i].latitude,
+                            "Piso": data[i].Piso,
+                            "people": Math.floor(Math.random() * 21)
+                        })
+                    }
+                    else if(data[i].Piso=="4"){
+                        locs_Piso_4.push({
+                            "apId": data[i].id,
+                            "apName": data[i].name,
+                            "long": data[i].longitude,
+                            "lat": data[i].latitude,
+                            "Piso": data[i].Piso,
+                            "people": Math.floor(Math.random() * 21)
+                        })
+                    }
+                    else if(data[i].Piso==="5"){
+                        locs_Piso_5.push({
+                            "apId": data[i].id,
+                            "apName": data[i].name,
+                            "long": data[i].longitude,
+                            "lat": data[i].latitude,
+                            "Piso": data[i].Piso,
+                            "people": Math.floor(Math.random() * 21)
+                        })
+                    }
+                    else{
+                        locs_APS.push({
+                            "apId": data[i].id,
+                            "apName": data[i].name,
+                            "long": data[i].longitude,
+                            "lat": data[i].latitude,
+                            "Piso": data[i].Piso,
+                            "people": Math.floor(Math.random() * 21)
+                        })
+                    }
+                }
+            }
+        })
+        firebase.analytics();
         
         // Popup template
         const popupOpenspaces = {
@@ -155,7 +247,6 @@
 
         addBTN();
 
-        
         // Change map layer whenever we change the layer on the top right list
         function changeLayer(view, newLayer) {
             
@@ -172,6 +263,8 @@
                 });
 
                 changeList = ["Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
+
+                addPoints(locs_Piso_1);
                 
             }
             // change to layer Piso_2
@@ -186,6 +279,8 @@
                     center: [-8.659132, 40.632902]
                 });
                 changeList = ["Piso 2",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
+
+                addPoints(locs_Piso_2);
             }
             // change to layer Piso_3
             else if (newLayer == "Piso 3"){
@@ -200,7 +295,7 @@
                 });
                 changeList = ["Piso 3",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
 
-                addPoints(locs_Piso3);
+                addPoints(locs_Piso_3);
             }
             // change to layer Piso_4
             else if (newLayer == "Piso 4"){
@@ -214,6 +309,8 @@
                     center: [-8.659132, 40.632902]
                 });
                 changeList = ["Piso 4",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
+
+                addPoints(locs_Piso_4);
             }
             // change to layer Piso_5
             else if (newLayer == "Piso 5"){
@@ -227,6 +324,8 @@
                     center: [-8.659132, 40.632902]
                 });
                 changeList = ["Piso 5",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
+
+                addPoints(locs_Piso_5);
 
             }
             // change to layer Edifícios
@@ -243,7 +342,7 @@
 
                 changeList = ["Edifícios",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
             
-                addPoints(locs);
+                addPoints(locs_APS);
             
             }
             
@@ -278,7 +377,6 @@
         function addPoints(aps){
             
             for (i = 0; i < aps.length; i++) {
-                
                 const graphicsLayer = new GraphicsLayer();
                 map.add(graphicsLayer);
                 var colorTest = changeColor(aps[i].people);
@@ -300,9 +398,9 @@
                 
                 const attributes1 = {
                     title: "Graphic",
-                    AP_NAME: aps[i].APId,
+                    AP_NAME: aps[i].apName,
                     NUM_PES: aps[i].people,
-                    NUM_APS: aps[i].media
+                    NUM_APS: aps[i].Piso
                 }
 
                 const pointGraphic = new Graphic({
