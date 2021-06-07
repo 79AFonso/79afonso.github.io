@@ -43,44 +43,50 @@
     var locs =
     [
     {
-    "Id" : 1,
+    "APId" : "ap34",
     "long": -8.659532,
     "lat": 40.632902 ,
-    "Temp": 6
+    "media": 5,
+    "people": 6
     },
     {
-    "Id" : 2,
+    "APId" : "ap21",
     "long": -8.659132,
     "lat": 40.632502 ,
-    "Temp": 10
+    "media": 9,
+    "people": 10
     },
     {
-    "Id" : 3,
+    "APId" : "ap5",
     "long": -8.659232,
     "lat": 40.632802 ,
-    "Temp": 10
+    "media": 12,
+    "people": 16
     }
     ]
 
     var locs_Piso3 =
     [
     {
-    "Id" : 1,
+    "APId" : "ap1",
     "long": -8.6591881,
     "lat": 40.6329285 ,
-    "Temp": 6
+    "media": 3,
+    "people": 6
     },
     {
-    "Id" : 2,
+    "APId" : "ap2",
     "long": -8.6592559,
     "lat": 40.6331473 ,
-    "Temp": 10
+    "media": 7,
+    "people": 10
     },
     {
-    "Id" : 3,
+    "APId" : "ap3",
     "long": -8.6594563,
     "lat": 40.6331738 ,
-    "Temp": 10
+    "media": 6,
+    "people": 14
     }
     ]
 
@@ -105,6 +111,47 @@
             center: [-8.659132, 40.632902], //Longitude, latitude
             map: map
         });
+        
+        // Popup template
+        const popupOpenspaces = {
+            "title": "{title}",
+            "content": [{
+            "type": "fields",
+            "fieldInfos": [
+                {
+                "fieldName": "AP_NAME",
+                "label": "AP",
+                "isEditable": true,
+                "tooltip": "",
+                "visible": true,
+                "format": null,
+                "stringFieldOption": "text-box"
+                },
+                {
+                "fieldName": "NUM_PES",
+                "label": "Numero de pessoas ligadas à rede",
+                "isEditable": true,
+                "tooltip": "",
+                "visible": true,
+                "format": null,
+                "stringFieldOption": "text-box"
+                },
+                {
+                "fieldName": "NUM_APS",
+                "label": "Média de dispositivos ligados à rede na ultima hora",
+                "isEditable": true,
+                "tooltip": "",
+                "visible": true,
+                "format": {
+                    "places": 2,
+                    "digitSeparator": true
+                },
+
+                "stringFieldOption": "text-box"
+                }
+            ]
+            }]
+        }
 
         addBTN();
 
@@ -112,6 +159,7 @@
         // Change map layer whenever we change the layer on the top right list
         function changeLayer(view, newLayer) {
             
+            // change to layer Piso_1
             if (newLayer == "Piso 1"){
                 layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_1/MapServer" });
                 map = new Map({basemap: "dark-gray-vector", layers: [layer] });
@@ -126,6 +174,7 @@
                 changeList = ["Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
                 
             }
+            // change to layer Piso_2
             else if (newLayer == "Piso 2"){
                 layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_2/MapServer" });
                 map = new Map({basemap: "dark-gray-vector", layers: [layer] });
@@ -138,6 +187,7 @@
                 });
                 changeList = ["Piso 2",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
             }
+            // change to layer Piso_3
             else if (newLayer == "Piso 3"){
                 layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_3/MapServer" });
                 map = new Map({basemap: "dark-gray-vector", layers: [layer] });
@@ -152,6 +202,7 @@
 
                 addPoints(locs_Piso3);
             }
+            // change to layer Piso_4
             else if (newLayer == "Piso 4"){
                 layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_4/MapServer" });
                 map = new Map({basemap: "dark-gray-vector", layers: [layer] });
@@ -164,6 +215,7 @@
                 });
                 changeList = ["Piso 4",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
             }
+            // change to layer Piso_5
             else if (newLayer == "Piso 5"){
                 layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_5/MapServer" });
                 map = new Map({basemap: "dark-gray-vector", layers: [layer] });
@@ -177,6 +229,7 @@
                 changeList = ["Piso 5",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
 
             }
+            // change to layer Edifícios
             else if (newLayer == "Edifícios"){
                 layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Edifícios_UA/MapServer" });
                 map = new Map({basemap: "dark-gray-vector", layers: [layer] });
@@ -224,11 +277,11 @@
         // Add Points according to an array that contains coordinates
         function addPoints(aps){
             
-            for (i = 0; i < locs.length; i++) {
+            for (i = 0; i < aps.length; i++) {
                 
                 const graphicsLayer = new GraphicsLayer();
                 map.add(graphicsLayer);
-                var colorTest = changeColor(aps[i].Temp);
+                var colorTest = changeColor(aps[i].people);
                 
                 const point = { //Create a point
                     type: "point",
@@ -238,16 +291,26 @@
                 const simpleMarkerSymbol = {
                     type: "simple-marker",
                     color: colorTest, 
-                    size: aps[i].Temp/1.5,
+                    size: aps[i].people/1.5,
                     outline: {
                         color: [255, 255, 255],
                         width: 0.4
                     }
                 };
                 
+                const attributes1 = {
+                    title: "Graphic",
+                    AP_NAME: aps[i].APId,
+                    NUM_PES: aps[i].people,
+                    NUM_APS: aps[i].media
+                }
+
                 const pointGraphic = new Graphic({
                     geometry: point,
-                    symbol: simpleMarkerSymbol
+                    symbol: simpleMarkerSymbol,
+
+                    attributes : attributes1,
+                    popupTemplate: popupOpenspaces
                 });
                 graphicsLayer.add(pointGraphic);
                    
@@ -257,11 +320,21 @@
         // change color of point accordint to the population density in an AP
         function changeColor(demoValue) {
             var color;
-            if (demoValue==6) {
-                color = "red"
+            
+            if (demoValue <= 4) {
+                color = "#ffed85"
+            }
+            else if(demoValue <= 6){
+                color = "#fbaf52"
+            }
+            else if(demoValue <= 8){
+                color = "#f6711f"
+            }
+            else if (demoValue <= 10){
+                color = "#c33910"
             }
             else{
-                color = "blue"
+                color = "#910000"
             }
             return color;
         }
