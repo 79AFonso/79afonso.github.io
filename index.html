@@ -19,62 +19,13 @@
     </style>
     <script type="text/javascript">
 
-    var locs =
-    [
-    {
-    "apName" : "ap34",
-    "long": -8.659532,
-    "lat": 40.632902 ,
-    "piso": 5,
-    "people": 6
-    },
-    {
-    "apName" : "ap21",
-    "long": -8.659132,
-    "lat": 40.632502 ,
-    "piso": 9,
-    "people": 10
-    },
-    {
-    "apName" : "ap5",
-    "long": -8.659232,
-    "lat": 40.632802 ,
-    "piso": 12,
-    "people": 16
-    }
-    ]
-
-    var locs_Piso3 =
-    [
-    {
-    "apName" : "ap1",
-    "long": -8.6591881,
-    "lat": 40.6329285 ,
-    "piso": 3,
-    "people": 6
-    },
-    {
-    "apName" : "ap2",
-    "long": -8.6592559,
-    "lat": 40.6331473 ,
-    "piso": 7,
-    "people": 10
-    },
-    {
-    "apName" : "ap3",
-    "long": -8.6594563,
-    "lat": 40.6331738 ,
-    "piso": 6,
-    "people": 14
-    }
-    ]
-
-    var locs_APS = []
-    var locs_Piso_1 = []
-    var locs_Piso_2 = []
-    var locs_Piso_3 = []
-    var locs_Piso_4 = []
-    var locs_Piso_5 = []
+    var locs_APS = [];
+    var locs_Piso_1 = [];
+    var locs_Piso_2 = [];
+    var locs_Piso_3 = [];
+    var locs_Piso_4 = [];
+    var locs_Piso_5 = [];
+    var list_index = [];
 
     require([
     "esri/Map",
@@ -113,89 +64,110 @@
         var firebaseRef = firebase.database().ref("localizacao");
         firebaseRef.once("value", function(snapshot){
             var data = snapshot.val();
+            var countP1=0;
+            var countP2=0;
+            var countP3=0;
+            var countP4=0;
+            var countP5=0;
+            var countAp=0;
             for(let i in data){
-                if ((!isNaN(data[i].latitude) && !data[i].latitude.length==0) && (!isNaN(data[i].longitude) && !data[i].longitude.length==0)){
+                var lat = data[i].latitude;
+                var long =data[i].longitude
+                if ((!isNaN(lat) && !lat.length==0) && (!isNaN(long) && !long.length==0)){
                     if(data[i].Piso==="1"){
                         locs_Piso_1.push({
                             "apName": data[i].name,
                             "id": parseInt(data[i].id,10),
-                            "long": data[i].longitude,
-                            "lat": data[i].latitude,
+                            "long": long,
+                            "lat": lat,
                             "Piso": data[i].Piso,
                             "people": 0
                         })
+                        insListInd(data[i].id, data[i].Piso, countP1);
+                        countP1++;
                     }
                     else if(data[i].Piso=="2"){
                         locs_Piso_2.push({
                             "apName": data[i].name,
                             "id": data[i].id,
-                            "long": data[i].longitude,
-                            "lat": data[i].latitude,
+                            "long": long,
+                            "lat": lat,
                             "Piso": data[i].Piso,
                             "people": 0
                         })
+                        insListInd(data[i].id, data[i].Piso, countP2);
+                        countP2++;
                     }
                     else if(data[i].Piso=="3"){
                         locs_Piso_3.push({
                             "id": data[i].id,
                             "apName": data[i].name,
-                            "long": data[i].longitude,
-                            "lat": data[i].latitude,
+                            "long": long,
+                            "lat": lat,
                             "Piso": data[i].Piso,
                             "people": 0
                         })
+                        insListInd(data[i].id, data[i].Piso, countP3);
+                        countP3++;
                     }
                     else if(data[i].Piso=="4"){
                         locs_Piso_4.push({
                             "apName": data[i].name,
                             "id": data[i].id,
-                            "long": data[i].longitude,
-                            "lat": data[i].latitude,
+                            "long": long,
+                            "lat": lat,
                             "Piso": data[i].Piso,
                             "people": 0
                         })
+                        insListInd(data[i].id, data[i].Piso, countP4);
+                        countP4++;
                     }
                     else if(data[i].Piso==="5"){
                         locs_Piso_5.push({
                             "apName": data[i].name,
                             "id": data[i].id,
-                            "long": data[i].longitude,
-                            "lat": data[i].latitude,
+                            "long": long,
+                            "lat": lat,
                             "Piso": data[i].Piso,
                             "people": 0
                         })
+                        insListInd(data[i].id, data[i].Piso, countP5);
+                        countP5++;
                     }
                     else{
                         locs_APS.push({
                             "apName": data[i].name,
                             "id": data[i].id,
-                            "long": data[i].longitude,
-                            "lat": data[i].latitude,
+                            "long": long,
+                            "lat": lat,
                             "Piso": data[i].Piso,
                             "people": 0
                         })
+                        insListInd(data[i].id, data[i].Piso, countAp);
+                        countAp++;
                     }
+                    
                 }
             }
         })
+        console.log(list_index);
         var firebaseRef2 = firebase.database().ref("data").limitToLast(1);
         firebaseRef2.once("value", function(snapshot){
             snapshot.forEach(function(element){
                 var data2 = element.val().accessPoints;
                 for(let i in data2){
-                    const result = locs_Piso_1.findIndex(aux => aux.id == data2[i].id);
-                    const result2 = locs_Piso_2.findIndex(aux => aux.id == data2[i].id);
-                    const result3 = locs_Piso_3.findIndex(aux => aux.id == data2[i].id);
-                    const result4 = locs_Piso_4.findIndex(aux => aux.id == data2[i].id);
-                    const result5 = locs_Piso_5.findIndex(aux => aux.id == data2[i].id);
-                    const result6 = locs_APS.findIndex(aux => aux.id == data2[i].id);
-                    if (result >=0) locs_Piso_1[result].people = data2[i].clientCount;
-                    else if(result2>=0) locs_Piso_2[result2].people = data2[i].clientCount;
-                    else if(result3>=0) locs_Piso_3[result3].people = data2[i].clientCount;
-                    else if(result4>=0) locs_Piso_4[result4].people = data2[i].clientCount;
-                    else if(result5>=0) locs_Piso_5[result5].people = data2[i].clientCount;
-                    else if(result6>=0) locs_APS[result6].people = data2[i].clientCount;
+                    const result = list_index.findIndex(aux => aux.id == data2[i].id);
+                    console.log(result);
+                    if (result>=0){
+                        if (list_index[result].piso == "1") locs_Piso_1[list_index[result].index].people = data2[i].clientCount;
+                        else if (list_index[result].piso == "2") locs_Piso_2[list_index[result].index].people = data2[i].clientCount;
+                        else if (list_index[result].piso == "3") locs_Piso_3[list_index[result].index].people = data2[i].clientCount;
+                        else if (list_index[result].piso == "4") locs_Piso_4[list_index[result].index].people = data2[i].clientCount;
+                        else if (list_index[result].piso == "5") locs_Piso_5[list_index[result].index].people = data2[i].clientCount;
+                        else locs_APS[list_index[result].index].people = data2[i].clientCount;
+                    }
                 }
+                    
             })
         })
         firebase.analytics();
@@ -243,8 +215,13 @@
 
         addBTN();
 
-        function getKeyByValue(object, value) {
-            return Object.keys(object).find(key => object[key] === value);
+        function insListInd(id, piso, listCount) {
+            list_index.push({
+                            "id": id,
+                            "piso": piso,
+                            "index": listCount
+                        })
+            
         }
 
         // Change map layer whenever we change the layer on the top right list
