@@ -37,7 +37,7 @@
     "esri/layers/GraphicsLayer",
     "dojo/domReady!"
     ], function(Map, MapView, Home, MapImageLayer, Extent, Graphic, GraphicsLayer) {
-        var uri = "https://sgt-websig.ua.pt/server/rest/services/Planta_Cobertura/MapServer";
+        var uri = "https://sgt-websig.ua.pt/server/rest/services/Edifícios_UA/MapServer";
         var res = encodeURI(uri); 
 
         var layer = new MapImageLayer({ url: res });
@@ -146,28 +146,26 @@
                         insListInd(data[i].id, data[i].Piso, countAp);
                         countAp++;
                     }
-                    
                 }
             }
         })
-        console.log(list_index);
+        
         var firebaseRef2 = firebase.database().ref("data").limitToLast(1);
         firebaseRef2.once("value", function(snapshot){
             snapshot.forEach(function(element){
-                var data2 = element.val().accessPoints;
-                for(let i in data2){
-                    const result = list_index.findIndex(aux => aux.id == data2[i].id);
-                    console.log(result);
+                var data = element.val().accessPoints;
+                for(let i in data){
+                    const result = list_index.findIndex(aux => aux.id == data[i].id);
                     if (result>=0){
-                        if (list_index[result].piso == "1") locs_Piso_1[list_index[result].index].people = data2[i].clientCount;
-                        else if (list_index[result].piso == "2") locs_Piso_2[list_index[result].index].people = data2[i].clientCount;
-                        else if (list_index[result].piso == "3") locs_Piso_3[list_index[result].index].people = data2[i].clientCount;
-                        else if (list_index[result].piso == "4") locs_Piso_4[list_index[result].index].people = data2[i].clientCount;
-                        else if (list_index[result].piso == "5") locs_Piso_5[list_index[result].index].people = data2[i].clientCount;
-                        else locs_APS[list_index[result].index].people = data2[i].clientCount;
+                        if (list_index[result].piso == "1") locs_Piso_1[list_index[result].index].people = data[i].clientCount;
+                        else if (list_index[result].piso == "2") locs_Piso_2[list_index[result].index].people = data[i].clientCount;
+                        else if (list_index[result].piso == "3") locs_Piso_3[list_index[result].index].people = data[i].clientCount;
+                        else if (list_index[result].piso == "4") locs_Piso_4[list_index[result].index].people = data[i].clientCount;
+                        else if (list_index[result].piso == "5") locs_Piso_5[list_index[result].index].people = data[i].clientCount;
+                        else locs_APS[list_index[result].index].people = data[i].clientCount;
                     }
                 }
-                    
+                return true;
             })
         })
         firebase.analytics();
@@ -178,15 +176,6 @@
             "content": [{
             "type": "fields",
             "fieldInfos": [
-                {
-                "fieldName": "AP_NAME",
-                "label": "AP",
-                "isEditable": true,
-                "tooltip": "",
-                "visible": true,
-                "format": null,
-                "stringFieldOption": "text-box"
-                },
                 {
                 "fieldName": "NUM_PES",
                 "label": "Numero de pessoas ligadas à rede",
@@ -220,7 +209,7 @@
                             "id": id,
                             "piso": piso,
                             "index": listCount
-                        })
+            })
             
         }
 
@@ -341,9 +330,7 @@
             // Listen for changes
             select.addEventListener('change', (event) => {
                 newLayer = event.target.value;
-
                 console.log(newLayer);
-
                 changeLayer(view, newLayer);
 
             });
@@ -374,8 +361,7 @@
                 };
                 
                 const attributes1 = {
-                    title: "Graphic",
-                    AP_NAME: aps[i].apName,
+                    title: aps[i].apName,
                     NUM_PES: aps[i].people,
                     NUM_APS: aps[i].Piso
                 }
@@ -394,26 +380,27 @@
 
         // change color of point accordint to the population density in an AP
         function changeColor(demoValue) {
-            var color;
-            if (demoValue == 0){
-                color = "89CFF0"
-            }
-            else if (demoValue <= 4) {
-                color = "green"
-            }
-            else if(demoValue <= 6){
-                color = "#fbaf52"
-            }
-            else if(demoValue <= 8){
-                color = "#f6711f"
-            }
-            else if (demoValue <= 10){
-                color = "#c33910"
-            }
-            else{
-                color = "#910000"
-            }
-            return color;
+        var color;
+        if (demoValue == 0){
+            color = "89CFF0"
+        }
+        else if (demoValue <= 6) {
+            color = "79db4f"
+        }
+        else if(demoValue <= 10){
+            color = "#ffe3aa"
+        }
+        else if(demoValue <= 16){
+            color = "#f5a038"
+        }
+        else if (demoValue <= 25){
+            color = "#f6711f"
+        }
+        else{
+            color = "#c33910"
+
+        }
+        return color;
         }
       
         // add the button to change map layer
