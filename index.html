@@ -11,30 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-database.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/dojo/nls/dojo_pt-pt.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/MapView.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/widgets/Home.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/layers/MapImageLayer.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/nls/MapView_pt-pt.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/widgets/Home/HomeViewModel.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/widgets/Home/nls/Home.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/widgets/Home/nls/pt-pt/Home.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/webgl.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/2d/mapViewDeps.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/2d/engine.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/2d/engine/webgl/definitions.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/2d/layers/MapImageLayerView2D.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/2d/layers/BitmapLayerView2D.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/2d/layers/LayerView2D.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/2d/layers/support/ExportStrategy.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/2d/layers/support/popupUtils2D.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/layers/MapImageLayerView.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/layers/support/ClipArea.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/layers/support/ClipRect.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/layers/support/Geometry.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/layers/support/Path.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/views/2d/viewStateUtils.js"></script>
-    <script type="text/javascript" charset="utf-8" src="https://js.arcgis.com/4.14/esri/renderers/support/clickToleranceUtils.js"></script>
     <script type="text/javascript" src="https://js.arcgis.com/4.14/"></script>
     <style>
     html,
@@ -141,66 +117,86 @@
                 if ((!isNaN(data[i].latitude) && !data[i].latitude.length==0) && (!isNaN(data[i].longitude) && !data[i].longitude.length==0)){
                     if(data[i].Piso==="1"){
                         locs_Piso_1.push({
-                            "apId": data[i].id,
                             "apName": data[i].name,
+                            "id": parseInt(data[i].id,10),
                             "long": data[i].longitude,
                             "lat": data[i].latitude,
                             "Piso": data[i].Piso,
-                            "people": Math.floor(Math.random() * 21)
+                            "people": 0
                         })
                     }
                     else if(data[i].Piso=="2"){
                         locs_Piso_2.push({
-                            "apId": data[i].id,
                             "apName": data[i].name,
+                            "id": data[i].id,
                             "long": data[i].longitude,
                             "lat": data[i].latitude,
                             "Piso": data[i].Piso,
-                            "people": Math.floor(Math.random() * 21)
+                            "people": 0
                         })
                     }
                     else if(data[i].Piso=="3"){
                         locs_Piso_3.push({
-                            "apId": data[i].id,
+                            "id": data[i].id,
                             "apName": data[i].name,
                             "long": data[i].longitude,
                             "lat": data[i].latitude,
                             "Piso": data[i].Piso,
-                            "people": Math.floor(Math.random() * 21)
+                            "people": 0
                         })
                     }
                     else if(data[i].Piso=="4"){
                         locs_Piso_4.push({
-                            "apId": data[i].id,
                             "apName": data[i].name,
+                            "id": data[i].id,
                             "long": data[i].longitude,
                             "lat": data[i].latitude,
                             "Piso": data[i].Piso,
-                            "people": Math.floor(Math.random() * 21)
+                            "people": 0
                         })
                     }
                     else if(data[i].Piso==="5"){
                         locs_Piso_5.push({
-                            "apId": data[i].id,
                             "apName": data[i].name,
+                            "id": data[i].id,
                             "long": data[i].longitude,
                             "lat": data[i].latitude,
                             "Piso": data[i].Piso,
-                            "people": Math.floor(Math.random() * 21)
+                            "people": 0
                         })
                     }
                     else{
                         locs_APS.push({
-                            "apId": data[i].id,
                             "apName": data[i].name,
+                            "id": data[i].id,
                             "long": data[i].longitude,
                             "lat": data[i].latitude,
                             "Piso": data[i].Piso,
-                            "people": Math.floor(Math.random() * 21)
+                            "people": 0
                         })
                     }
                 }
             }
+        })
+        var firebaseRef2 = firebase.database().ref("data").limitToLast(1);
+        firebaseRef2.once("value", function(snapshot){
+            snapshot.forEach(function(element){
+                var data2 = element.val().accessPoints;
+                for(let i in data2){
+                    const result = locs_Piso_1.findIndex(aux => aux.id == data2[i].id);
+                    const result2 = locs_Piso_2.findIndex(aux => aux.id == data2[i].id);
+                    const result3 = locs_Piso_3.findIndex(aux => aux.id == data2[i].id);
+                    const result4 = locs_Piso_4.findIndex(aux => aux.id == data2[i].id);
+                    const result5 = locs_Piso_5.findIndex(aux => aux.id == data2[i].id);
+                    const result6 = locs_APS.findIndex(aux => aux.id == data2[i].id);
+                    if (result >=0) locs_Piso_1[result].people = data2[i].clientCount;
+                    else if(result2>=0) locs_Piso_2[result2].people = data2[i].clientCount;
+                    else if(result3>=0) locs_Piso_3[result3].people = data2[i].clientCount;
+                    else if(result4>=0) locs_Piso_4[result4].people = data2[i].clientCount;
+                    else if(result5>=0) locs_Piso_5[result5].people = data2[i].clientCount;
+                    else if(result6>=0) locs_APS[result6].people = data2[i].clientCount;
+                }
+            })
         })
         firebase.analytics();
         
@@ -246,6 +242,10 @@
         }
 
         addBTN();
+
+        function getKeyByValue(object, value) {
+            return Object.keys(object).find(key => object[key] === value);
+        }
 
         // Change map layer whenever we change the layer on the top right list
         function changeLayer(view, newLayer) {
@@ -389,9 +389,9 @@
                 const simpleMarkerSymbol = {
                     type: "simple-marker",
                     color: colorTest, 
-                    size: aps[i].people/1.5,
+                    size: (aps[i].people/2)+4,
                     outline: {
-                        color: [255, 255, 255],
+                        color: "black",
                         width: 0.4
                     }
                 };
@@ -418,9 +418,11 @@
         // change color of point accordint to the population density in an AP
         function changeColor(demoValue) {
             var color;
-            
-            if (demoValue <= 4) {
-                color = "#ffed85"
+            if (demoValue == 0){
+                color = "89CFF0"
+            }
+            else if (demoValue <= 4) {
+                color = "green"
             }
             else if(demoValue <= 6){
                 color = "#fbaf52"
@@ -489,4 +491,3 @@
     </div>
     </body>
 </html>
-
