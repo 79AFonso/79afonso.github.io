@@ -15,10 +15,12 @@
     <style>
     html,
     body,
-    #viewDiv {padding: 0;margin: 0;height: 98%;width: 100%;}
+    #viewDiv {padding: 0;margin: 0;height: 100%;width: 100%;}
     </style>
     <script type="text/javascript">
 
+    var map_p1, map_p2, map_p3, map_p4, map_p5, map;
+    var layer, layer_p1;
     var locs_APS = [];
     var locs_Piso_1 = [];
     var locs_Piso_2 = [];
@@ -31,23 +33,23 @@
     "esri/Map",
     "esri/views/MapView",
     "esri/widgets/Home",
+    "esri/widgets/Legend",
     "esri/layers/MapImageLayer",
     "esri/geometry/Extent",
     "esri/Graphic",
     "esri/layers/GraphicsLayer",
     "dojo/domReady!"
-    ], function(Map, MapView, Home, MapImageLayer, Extent, Graphic, GraphicsLayer) {
-        var uri = "https://sgt-websig.ua.pt/server/rest/services/Edifícios_UA/MapServer";
-        var res = encodeURI(uri); 
+    ], function(Map, MapView, Home, Legend, MapImageLayer, Extent, Graphic, GraphicsLayer) {
 
-        var layer = new MapImageLayer({ url: res });
-        var map = new Map({basemap: "dark-gray-vector", layers: [layer] });
+        createLayers();
+
         var view = new MapView({
             container: "viewDiv",
             zoom: 16,
             center: [-8.659132, 40.632902], //Longitude, latitude
             map: map
         });
+
 
         var firebaseConfig = {
         apiKey: "AIzaSyAGlltLGv62NuK7A0Af1TUE2SrE2x1pW4A",
@@ -173,6 +175,7 @@
         // Popup template
         const popupOpenspaces = {
             "title": "{title}",
+            "dockEnabled": true,
             "content": [{
             "type": "fields",
             "fieldInfos": [
@@ -204,6 +207,26 @@
 
         addBTN();
 
+        function createLayers(){
+            layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Edifícios_UA/MapServer" });
+            map = new Map({basemap: "dark-gray-vector", layers: [layer] });
+
+            layer_p1 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_1/MapServer" });
+            map_p1 = new Map({basemap: "dark-gray-vector", layers: [layer_p1] });
+
+            var layer_p2 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_2/MapServer" });
+            map_p2 = new Map({basemap: "dark-gray-vector", layers: [layer_p2] });
+
+            var layer_p3 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_3/MapServer" });
+            map_p3 = new Map({basemap: "dark-gray-vector", layers: [layer_p3] });
+
+            var layer_p4 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_4/MapServer" });
+            map_p4 = new Map({basemap: "dark-gray-vector", layers: [layer_p4] });
+
+            var layer_p5 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_5/MapServer" });
+            map_p5 = new Map({basemap: "dark-gray-vector", layers: [layer_p5] });
+        }
+
         function insListInd(id, piso, listCount) {
             list_index.push({
                             "id": id,
@@ -218,99 +241,138 @@
             
             // change to layer Piso_1
             if (newLayer == "Piso 1"){
-                layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_1/MapServer" });
-                map = new Map({basemap: "dark-gray-vector", layers: [layer] });
 
                 view = new MapView({
                     container: "viewDiv",
-                    map: map,
+                    map: map_p1,
                     zoom: 16,
+                    popup: {
+                        dockEnabled: true,
+                        dockOptions: {
+                            breakpoint: false,
+                            position: "bottom-left"
+                        }
+                    },
                     center: [-8.659132, 40.632902]
                 });
 
                 changeList = ["Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
 
-                addPoints(locs_Piso_1);
+                addPoints(locs_Piso_1, map_p1);
                 
             }
             // change to layer Piso_2
             else if (newLayer == "Piso 2"){
-                layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_2/MapServer" });
-                map = new Map({basemap: "dark-gray-vector", layers: [layer] });
 
                 view = new MapView({
                     container: "viewDiv",
-                    map: map,
+                    map: map_p2,
                     zoom: 16,
+                    popup: {
+                        dockEnabled: true,
+                        dockOptions: {
+                            breakpoint: false,
+                            position: "bottom-left"
+                        }
+                    },
                     center: [-8.659132, 40.632902]
                 });
                 changeList = ["Piso 2",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
 
-                addPoints(locs_Piso_2);
+                addPoints(locs_Piso_2, map_p2);
             }
             // change to layer Piso_3
             else if (newLayer == "Piso 3"){
-                layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_3/MapServer" });
-                map = new Map({basemap: "dark-gray-vector", layers: [layer] });
 
                 view = new MapView({
                     container: "viewDiv",
-                    map: map,
+                    map: map_p3,
                     zoom: 16,
+                    popup: {
+                        dockEnabled: true,
+                        dockOptions: {
+                            breakpoint: false,
+                            position: "bottom-left"
+                        }
+                    },
                     center: [-8.659132, 40.632902]
                 });
                 changeList = ["Piso 3",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
 
-                addPoints(locs_Piso_3);
+                addPoints(locs_Piso_3,map_p3);
             }
             // change to layer Piso_4
             else if (newLayer == "Piso 4"){
-                layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_4/MapServer" });
-                map = new Map({basemap: "dark-gray-vector", layers: [layer] });
 
                 view = new MapView({
                     container: "viewDiv",
-                    map: map,
+                    map: map_p4,
                     zoom: 16,
+                    popup: {
+                        dockEnabled: true,
+                        dockOptions: {
+                            breakpoint: false,
+                            position: "bottom-left"
+                        }
+                    },
                     center: [-8.659132, 40.632902]
                 });
                 changeList = ["Piso 4",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
 
-                addPoints(locs_Piso_4);
+                addPoints(locs_Piso_4, map_p4);
             }
             // change to layer Piso_5
             else if (newLayer == "Piso 5"){
-                layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_5/MapServer" });
-                map = new Map({basemap: "dark-gray-vector", layers: [layer] });
 
                 view = new MapView({
                     container: "viewDiv",
-                    map: map,
+                    map: map_p5,
                     zoom: 16,
+                    popup: {
+                        dockEnabled: true,
+                        dockOptions: {
+                            breakpoint: false,
+                            position: "bottom-left"
+                        }
+                    },
                     center: [-8.659132, 40.632902]
                 });
                 changeList = ["Piso 5",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
 
-                addPoints(locs_Piso_5);
+                addPoints(locs_Piso_5, map_p5);
 
             }
             // change to layer Edifícios
             else if (newLayer == "Edifícios"){
-                layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Edifícios_UA/MapServer" });
-                map = new Map({basemap: "dark-gray-vector", layers: [layer] });
-
+    
                 view = new MapView({
                     container: "viewDiv",
                     map: map,
                     zoom: 16,
-                    center: [-8.659132, 40.632902]
+                    popup: {
+                        dockEnabled: true,
+                        dockOptions: {
+                            breakpoint: false,
+                            position: "bottom-left"
+                        }
+                    },
+                    
                 });
 
                 changeList = ["Edifícios",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
             
-                addPoints(locs_APS);
+                addPoints(locs_APS, map);
             
             }
+            
+
+            var leg = new Legend({
+                view: view,
+                basemapLegendVisible: true,
+                width: "200px"
+            });
+
+            view.ui.add(leg, "bottom-right");
             
             newLayer = changeList[0];
           
@@ -338,11 +400,11 @@
         }
 
         // Add Points according to an array that contains coordinates
-        function addPoints(aps){
+        function addPoints(aps,mapa){
             
+            const graphicsLayer = new GraphicsLayer();
+            mapa.add(graphicsLayer);
             for (i = 0; i < aps.length; i++) {
-                const graphicsLayer = new GraphicsLayer();
-                map.add(graphicsLayer);
                 var colorTest = changeColor(aps[i].people);
                 
                 const point = { //Create a point
@@ -366,16 +428,29 @@
                     NUM_APS: aps[i].Piso
                 }
 
+
                 const pointGraphic = new Graphic({
                     geometry: point,
                     symbol: simpleMarkerSymbol,
-
+                    
                     attributes : attributes1,
                     popupTemplate: popupOpenspaces
                 });
                 graphicsLayer.add(pointGraphic);
                    
             }
+
+            var leg = new Legend({
+                view: view,
+                basemapLegendVisible: false,
+                layerInfos:[{
+                    layer: graphicsLayer
+                }],
+                width: "200px"
+            });
+
+            view.ui.add(leg, "bottom-right");
+            
         }
 
         // change color of point accordint to the population density in an AP
@@ -405,7 +480,14 @@
       
         // add the button to change map layer
         function addBTN() {
-          
+            
+        var leg = new Legend({
+            view: view,
+            basemapLegendVisible: true,
+            width: "200px"
+        });
+
+        view.ui.add(leg, "bottom-right");
           
             // SQL query array
             const changeList = ["Escolha um Piso", "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
@@ -442,7 +524,7 @@
     <div id="viewDiv" class="esri-view esri-view-width-xlarge esri-view-width-greater-than-xsmall esri-view-width-greater-than-small esri-view-width-greater-than-medium esri-view-width-greater-than-large esri-view-height-medium esri-view-height-greater-than-xsmall esri-view-height-greater-than-small esri-view-height-less-than-large esri-view-height-less-than-xlarge esri-view-orientation-landscape">
         <div class="esri-view-root">
             <div class="esri-view-surface esri-view-surface--inset-outline esri-view-surface--touch-none" role="application" tabindex="0">
-                <canvas style="width: 1365px; height: 882px; display: block;" width="1365" height="882"></canvas>
+                <canvas style="width: 100%; height: 100%; display: block;" width="100%" height="100%"></canvas>
             </div>
             <div class="esri-overlay-surface">
                 <div style="visibility: hidden;">
