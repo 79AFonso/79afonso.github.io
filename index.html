@@ -29,6 +29,7 @@
     var locs_Piso_4 = [];
     var locs_Piso_5 = [];
     var list_index = [];
+    var list_index2 = [];
 
     require([
     "esri/Map",
@@ -77,6 +78,7 @@
                 var lat = data[i].latitude;
                 var long =data[i].longitude
                 if ((!isNaN(lat) && !lat.length==0) && (!isNaN(long) && !long.length==0)){
+                    //Add every access point from floor 1 to an array
                     if(data[i].Piso==="1"){
                         locs_Piso_1.push({
                             "apName": data[i].name,
@@ -86,9 +88,10 @@
                             "Piso": data[i].Piso,
                             "people": 0
                         })
-                        insListInd(data[i].id, data[i].Piso, countP1);
+                        insListInd(data[i].id, data[i].Piso, countP1, 0);
                         countP1++;
                     }
+                    //Add every access point from floor 2 to an array
                     else if(data[i].Piso=="2"){
                         locs_Piso_2.push({
                             "apName": data[i].name,
@@ -98,9 +101,10 @@
                             "Piso": data[i].Piso,
                             "people": 0
                         })
-                        insListInd(data[i].id, data[i].Piso, countP2);
+                        insListInd(data[i].id, data[i].Piso, countP2, 0);
                         countP2++;
                     }
+                    //Add every access point from floor 3 to an array
                     else if(data[i].Piso=="3"){
                         locs_Piso_3.push({
                             "id": data[i].id,
@@ -110,9 +114,10 @@
                             "Piso": data[i].Piso,
                             "people": 0
                         })
-                        insListInd(data[i].id, data[i].Piso, countP3);
+                        insListInd(data[i].id, data[i].Piso, countP3, 0);
                         countP3++;
                     }
+                    //Add every access point from floor 4 to an array
                     else if(data[i].Piso=="4"){
                         locs_Piso_4.push({
                             "apName": data[i].name,
@@ -122,9 +127,10 @@
                             "Piso": data[i].Piso,
                             "people": 0
                         })
-                        insListInd(data[i].id, data[i].Piso, countP4);
+                        insListInd(data[i].id, data[i].Piso, countP4, 0);
                         countP4++;
                     }
+                    //Add every access point from floor 5 to an array
                     else if(data[i].Piso==="5"){
                         locs_Piso_5.push({
                             "apName": data[i].name,
@@ -134,10 +140,10 @@
                             "Piso": data[i].Piso,
                             "people": 0
                         })
-                        insListInd(data[i].id, data[i].Piso, countP5);
+                        insListInd(data[i].id, data[i].Piso, countP5,0);
                         countP5++;
                     }
-                    
+                    //Add every access point from every floor to an array
                     locs_APS.push({
                         "apName": data[i].name,
                         "id": data[i].id,
@@ -146,12 +152,14 @@
                         "Piso": data[i].Piso,
                         "people": 0
                     })
-                    // insListInd(data[i].id, data[i].Piso, countAp);
-                    // countAp++;
+                    insListInd(data[i].id, data[i].Piso, countAp, 1);
+                    countAp++;
                 
                 }
             }
         })
+
+        
         
         var firebaseRef2 = firebase.database().ref("data").limitToLast(1);
         firebaseRef2.once("value", function(snapshot){
@@ -159,16 +167,17 @@
                 var count=0;
                 var data = element.val().accessPoints;
                 for(let i in data){
-                    const result = list_index.findIndex(aux => aux.id == data[i].id);
+                    // Check if the id of each access point exists in the database
+                    const result = list_index.findIndex(aux => aux.id == data[i].id);   
                     if (result>=0){
+                        // Add number of people connected to each AP
+                        // first checks floor, then updates the array according to the floor
                         if (list_index[result].piso == "1") locs_Piso_1[list_index[result].index].people = data[i].clientCount;
                         else if (list_index[result].piso == "2") locs_Piso_2[list_index[result].index].people = data[i].clientCount;
                         else if (list_index[result].piso == "3") locs_Piso_3[list_index[result].index].people = data[i].clientCount;
                         else if (list_index[result].piso == "4") locs_Piso_4[list_index[result].index].people = data[i].clientCount;
                         else if (list_index[result].piso == "5") locs_Piso_5[list_index[result].index].people = data[i].clientCount;
-                        // locs_APS[list_index[result].index].people = data[i].clientCount;
-                        locs_APS[count].people = data[i].clientCount;
-                        count++;
+                        locs_APS[list_index2[result].index].people = data[i].clientCount;
                     }
                 }
                 return true;
@@ -199,19 +208,6 @@
                 "visible": true,
                 "format": null,
                 "stringFieldOption": "text-box"
-                },
-                {
-                "fieldName": "NUM_APS",
-                "label": "Média de dispositivos ligados à rede na ultima hora",
-                "isEditable": true,
-                "tooltip": "",
-                "visible": true,
-                "format": {
-                    "places": 2,
-                    "digitSeparator": true
-                },
-
-                "stringFieldOption": "text-box"
                 }
             ]
             }]
@@ -221,6 +217,7 @@
 
         addBTN();
 
+        //Creating each layer at the start of the program
         function createLayers(){
             layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Edifícios_UA/MapServer" });
             map = new Map({basemap: "dark-gray-vector", layers: [layer] });
@@ -241,12 +238,22 @@
             map_p5 = new Map({basemap: "dark-gray-vector", layers: [layer_p5] });
         }
 
-        function insListInd(id, piso, listCount) {
-            list_index.push({
-                            "id": id,
-                            "piso": piso,
-                            "index": listCount
-            })
+        //Inserting info in arrays so it makes it easier to check id's
+        function insListInd(id, piso, listCount, HELPCHANGENAME) {
+            if (HELPCHANGENAME ==0){
+                list_index.push({
+                                "id": id,
+                                "piso": piso,
+                                "index": listCount
+                })
+            }
+            else{
+                list_index2.push({
+                                "id": id,
+                                "piso": piso,
+                                "index": listCount
+                })
+            }
             
         }
 
@@ -437,6 +444,7 @@
                     }
                 };
                 
+                //Attributes of popup
                 const attributes1 = {
                     title: aps[i].apName,
                     NUM_PES: aps[i].people,
