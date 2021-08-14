@@ -22,14 +22,9 @@
     var map_p1, map_p2, map_p3, map_p4, map_p5, map;
     var layer, layer_p1;
     var graphicsLayer;
-    var locs_APS = [];
-    var locs_Piso_1 = [];
-    var locs_Piso_2 = [];
-    var locs_Piso_3 = [];
-    var locs_Piso_4 = [];
-    var locs_Piso_5 = [];
-    var list_index = [];
-    var list_index2 = [];
+    var locs_APS = [],locs_Piso_1 = [], locs_Piso_2 = [],locs_Piso_3 = [],locs_Piso_4 = [], locs_Piso_5 = [];
+    var list_index = [], list_index2 = [];
+    var countDB=0;
 
     require([
     "esri/Map",
@@ -68,12 +63,8 @@
         var firebaseRef = firebase.database().ref("localizacao");
         firebaseRef.once("value", function(snapshot){
             var data = snapshot.val();
-            var countP1=0;
-            var countP2=0;
-            var countP3=0;
-            var countP4=0;
-            var countP5=0;
-            var countAp=0;
+            var countP1=0,countP2=0,countP3=0,countP4=0,countP5=0,countAp=0;
+            // cicle through all access points
             for(let i in data){
                 var lat = data[i].latitude;
                 var long =data[i].longitude
@@ -86,7 +77,11 @@
                             "long": long,
                             "lat": lat,
                             "Piso": data[i].Piso,
-                            "people": 0
+                            "pplLive": 0,
+                            "pplOld1": 0,
+                            "pplOld2": 0,
+                            "pplOld3": 0,
+                            "pplOld4": 0
                         })
                         insListInd(data[i].id, data[i].Piso, countP1, 0);
                         countP1++;
@@ -99,7 +94,11 @@
                             "long": long,
                             "lat": lat,
                             "Piso": data[i].Piso,
-                            "people": 0
+                            "pplLive": 0,
+                            "pplOld1": 0,
+                            "pplOld2": 0,
+                            "pplOld3": 0,
+                            "pplOld4": 0
                         })
                         insListInd(data[i].id, data[i].Piso, countP2, 0);
                         countP2++;
@@ -112,7 +111,11 @@
                             "long": long,
                             "lat": lat,
                             "Piso": data[i].Piso,
-                            "people": 0
+                            "pplLive": 0,
+                            "pplOld1": 0,
+                            "pplOld2": 0,
+                            "pplOld3": 0,
+                            "pplOld4": 0
                         })
                         insListInd(data[i].id, data[i].Piso, countP3, 0);
                         countP3++;
@@ -125,7 +128,11 @@
                             "long": long,
                             "lat": lat,
                             "Piso": data[i].Piso,
-                            "people": 0
+                            "pplLive": 0,
+                            "pplOld1": 0,
+                            "pplOld2": 0,
+                            "pplOld3": 0,
+                            "pplOld4": 0
                         })
                         insListInd(data[i].id, data[i].Piso, countP4, 0);
                         countP4++;
@@ -138,7 +145,11 @@
                             "long": long,
                             "lat": lat,
                             "Piso": data[i].Piso,
-                            "people": 0
+                            "pplLive": 0,
+                            "pplOld1": 0,
+                            "pplOld2": 0,
+                            "pplOld3": 0,
+                            "pplOld4": 0
                         })
                         insListInd(data[i].id, data[i].Piso, countP5,0);
                         countP5++;
@@ -150,7 +161,11 @@
                         "long": long,
                         "lat": lat,
                         "Piso": data[i].Piso,
-                        "people": 0
+                        "pplLive": 0,
+                        "pplOld1": 0,
+                        "pplOld2": 0,
+                        "pplOld3": 0,
+                        "pplOld4": 0
                     })
                     insListInd(data[i].id, data[i].Piso, countAp, 1);
                     countAp++;
@@ -161,26 +176,31 @@
 
         
         
-        var firebaseRef2 = firebase.database().ref("data").limitToLast(1);
+        var firebaseRef2 = firebase.database().ref("data").limitToLast(5);
         firebaseRef2.once("value", function(snapshot){
             snapshot.forEach(function(element){
-                var count=0;
                 var data = element.val().accessPoints;
                 for(let i in data){
                     // Check if the id of each access point exists in the database
                     const result = list_index.findIndex(aux => aux.id == data[i].id);   
                     if (result>=0){
+                        var idx = list_index[result].index;
+                        var ppl = data[i].clientCount;
+                        var floor = list_index[result].piso;
                         // Add number of people connected to each AP
                         // first checks floor, then updates the array according to the floor
-                        if (list_index[result].piso == "1") locs_Piso_1[list_index[result].index].people = data[i].clientCount;
-                        else if (list_index[result].piso == "2") locs_Piso_2[list_index[result].index].people = data[i].clientCount;
-                        else if (list_index[result].piso == "3") locs_Piso_3[list_index[result].index].people = data[i].clientCount;
-                        else if (list_index[result].piso == "4") locs_Piso_4[list_index[result].index].people = data[i].clientCount;
-                        else if (list_index[result].piso == "5") locs_Piso_5[list_index[result].index].people = data[i].clientCount;
-                        locs_APS[list_index2[result].index].people = data[i].clientCount;
+                        if (floor == "1") addOldData(locs_Piso_1, idx, ppl, countDB);
+                        else if (floor == "2") addOldData(locs_Piso_2, idx, ppl, countDB);
+                        else if (floor == "3") addOldData(locs_Piso_3, idx, ppl, countDB);
+                        else if (floor == "4") addOldData(locs_Piso_4, idx, ppl, countDB);
+                        else if (floor == "5") addOldData(locs_Piso_5, idx, ppl, countDB);
+                        addOldData(locs_APS, list_index2[result].index, ppl, countDB);
+                        
                     }
                 }
-                return true;
+                //after getting data from the last hour we return true in order to leave the cicle
+                if (countDB == 5) return true;
+                countDB++;
             })
         })
         firebase.analytics();
@@ -209,8 +229,23 @@
                 "format": null,
                 "stringFieldOption": "text-box"
                 }
+                ]
+            },
+            {
+                "type": "text",
+                "text": "Fluxo demográfico na última hora"
+            },
+            {
+                "type": "media",
+                "mediaInfos": [{
+                    "type": "line-chart",
+                    "value": {
+                    "fields": [ "NUM_PES5","NUM_PES4", "NUM_PES3", "NUM_PES2", "NUM_PES" ],
+                    "normalizeField": null,
+                    }
+                }]
+            }
             ]
-            }]
         }
 
 
@@ -427,7 +462,57 @@
             graphicsLayer = new GraphicsLayer();
             mapa.add(graphicsLayer);
             for (i = 0; i < aps.length; i++) {
-                var colorTest = changeColor(aps[i].people);
+                var colorTest = changeColor(aps[i].pplLive);
+                
+                const point = { //Create a point
+                    type: "point",
+                    longitude: aps[i].long,
+                    latitude: aps[i].lat
+                };
+                const simpleMarkerSymbol = {
+                    type: "simple-marker",
+                    color: colorTest, 
+                    size: (aps[i].pplLive/2)+4,
+                    outline: {
+                        color: "black",
+                        width: 0.4
+                    }
+                };
+                
+                //Attributes of popup
+                const attributes1 = {
+                    title: aps[i].apName,
+                    NUM_PES: aps[i].pplLive,
+                    NUM_PISO: aps[i].Piso,
+                    NUM_PES2: aps[i].pplOld1,
+                    NUM_PES3: aps[i].pplOld2,
+                    NUM_PES4: aps[i].pplOld3,
+                    NUM_PES5: aps[i].pplOld4
+                    
+                }
+
+
+                const pointGraphic = new Graphic({
+                    geometry: point,
+                    symbol: simpleMarkerSymbol,
+                    
+                    attributes : attributes1,
+                    popupTemplate: popupOpenspaces
+                });
+
+                graphicsLayer.add(pointGraphic);
+                   
+            }
+
+            
+        }
+
+        /*function addPoligon(aps,mapa){
+            
+            graphicsLayer = new GraphicsLayer();
+            mapa.add(graphicsLayer);
+            for (i = 0; i < aps.length; i++) {
+                var colorTest = changeColor(aps[i].pplLive);
                 
                 const point = { //Create a point
                     type: "point",
@@ -466,7 +551,7 @@
             }
 
             
-        }
+        }*/
 
         // change color of point accordint to the population density in an AP
         function changeColor(demoValue) {
@@ -531,6 +616,15 @@
             });
         }
 
+        // function to update the ammount of people in each AP throughout the last hour
+        function addOldData(list, idx, people, time){
+            if (time == 4) list[idx].pplLive = people;
+            else if (time == 3) list[idx].pplOld1 = people;
+            else if (time == 2) list[idx].pplOld2 = people;
+            else if (time == 1) list[idx].pplOld3 = people;
+            else if (time == 0) list[idx].pplOld4 = people;
+        }
+    
         });
     </script>
     </head>
