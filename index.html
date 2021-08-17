@@ -78,10 +78,7 @@
                             "lat": lat,
                             "Piso": data[i].Piso,
                             "pplLive": 0,
-                            "pplOld1": 0,
-                            "pplOld2": 0,
-                            "pplOld3": 0,
-                            "pplOld4": 0
+                            "pplOld" : new Array(10).fill(0)
                         })
                         insListInd(data[i].id, data[i].Piso, countP1, 0);
                         countP1++;
@@ -95,10 +92,7 @@
                             "lat": lat,
                             "Piso": data[i].Piso,
                             "pplLive": 0,
-                            "pplOld1": 0,
-                            "pplOld2": 0,
-                            "pplOld3": 0,
-                            "pplOld4": 0
+                            "pplOld": new Array(10).fill(0)
                         })
                         insListInd(data[i].id, data[i].Piso, countP2, 0);
                         countP2++;
@@ -112,10 +106,7 @@
                             "lat": lat,
                             "Piso": data[i].Piso,
                             "pplLive": 0,
-                            "pplOld1": 0,
-                            "pplOld2": 0,
-                            "pplOld3": 0,
-                            "pplOld4": 0
+                            "pplOld": new Array(10).fill(0)
                         })
                         insListInd(data[i].id, data[i].Piso, countP3, 0);
                         countP3++;
@@ -129,10 +120,7 @@
                             "lat": lat,
                             "Piso": data[i].Piso,
                             "pplLive": 0,
-                            "pplOld1": 0,
-                            "pplOld2": 0,
-                            "pplOld3": 0,
-                            "pplOld4": 0
+                            "pplOld": new Array(10).fill(0)
                         })
                         insListInd(data[i].id, data[i].Piso, countP4, 0);
                         countP4++;
@@ -146,10 +134,7 @@
                             "lat": lat,
                             "Piso": data[i].Piso,
                             "pplLive": 0,
-                            "pplOld1": 0,
-                            "pplOld2": 0,
-                            "pplOld3": 0,
-                            "pplOld4": 0
+                            "pplOld": new Array(10).fill(0)
                         })
                         insListInd(data[i].id, data[i].Piso, countP5,0);
                         countP5++;
@@ -162,10 +147,7 @@
                         "lat": lat,
                         "Piso": data[i].Piso,
                         "pplLive": 0,
-                        "pplOld1": 0,
-                        "pplOld2": 0,
-                        "pplOld3": 0,
-                        "pplOld4": 0
+                        "pplOld": new Array(10).fill(0)
                     })
                     insListInd(data[i].id, data[i].Piso, countAp, 1);
                     countAp++;
@@ -176,7 +158,7 @@
 
         
         
-        var firebaseRef2 = firebase.database().ref("data").limitToLast(5);
+        var firebaseRef2 = firebase.database().ref("data").limitToLast(10);
         firebaseRef2.once("value", function(snapshot){
             snapshot.forEach(function(element){
                 var data = element.val().accessPoints;
@@ -199,7 +181,8 @@
                     }
                 }
                 //after getting data from the last hour we return true in order to leave the cicle
-                if (countDB == 5) return true;
+                //console.log(countDB);
+                if (countDB == 9) return true;
                 countDB++;
             })
         })
@@ -240,7 +223,7 @@
                 "mediaInfos": [{
                     "type": "line-chart",
                     "value": {
-                    "fields": [ "NUM_PES5","NUM_PES4", "NUM_PES3", "NUM_PES2", "NUM_PES" ],
+                    "fields": [ "NUM_PES9","NUM_PES8", "NUM_PES7", "NUM_PES6","NUM_PES5","NUM_PES4", "NUM_PES3", "NUM_PES2","NUM_PES1", "NUM_PES" ],
                     "normalizeField": null,
                     }
                 }]
@@ -484,12 +467,18 @@
                     title: aps[i].apName,
                     NUM_PES: aps[i].pplLive,
                     NUM_PISO: aps[i].Piso,
-                    NUM_PES2: aps[i].pplOld1,
-                    NUM_PES3: aps[i].pplOld2,
-                    NUM_PES4: aps[i].pplOld3,
-                    NUM_PES5: aps[i].pplOld4
+                    NUM_PES1: aps[i].pplOld[8],
+                    NUM_PES2: aps[i].pplOld[7],
+                    NUM_PES3: aps[i].pplOld[6],
+                    NUM_PES4: aps[i].pplOld[5],
+                    NUM_PES5: aps[i].pplOld[4],
+                    NUM_PES6: aps[i].pplOld[3],
+                    NUM_PES7: aps[i].pplOld[2],
+                    NUM_PES8: aps[i].pplOld[1],
+                    NUM_PES9: aps[i].pplOld[0]
                     
                 }
+                console.log(aps[47].pplOld);
 
 
                 const pointGraphic = new Graphic({
@@ -618,11 +607,9 @@
 
         // function to update the ammount of people in each AP throughout the last hour
         function addOldData(list, idx, people, time){
-            if (time == 4) list[idx].pplLive = people;
-            else if (time == 3) list[idx].pplOld1 = people;
-            else if (time == 2) list[idx].pplOld2 = people;
-            else if (time == 1) list[idx].pplOld3 = people;
-            else if (time == 0) list[idx].pplOld4 = people;
+            if (time == 9) list[idx].pplLive = people;
+            else list[idx].pplOld[time] = people;
+            
         }
     
         });
