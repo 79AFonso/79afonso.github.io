@@ -35,8 +35,9 @@
     "esri/geometry/Extent",
     "esri/Graphic",
     "esri/layers/GraphicsLayer",
+    "esri/widgets/Locate",
     "dojo/domReady!"
-    ], function(Map, MapView, Home, Legend, MapImageLayer, Extent, Graphic, GraphicsLayer) {
+    ], function(Map, MapView, Home, Legend, MapImageLayer, Extent, Graphic, GraphicsLayer, Locate) {
 
         createLayers();
 
@@ -46,6 +47,8 @@
             center: [-8.659132, 40.632902], //Longitude, latitude
             map: map
         });
+
+        
 
 
         var firebaseConfig = {
@@ -413,6 +416,15 @@
 
             view.ui.add(leg, "bottom-right");
 
+            var locateBtn = new Locate({
+                view: view
+            });
+
+            // Add the locate widget to the top left corner of the view
+            view.ui.add(locateBtn, {
+                position: "top-left"
+            });
+
             
             newLayer = changeList[0];
           
@@ -478,7 +490,7 @@
                     NUM_PES9: aps[i].pplOld[0]
                     
                 }
-                console.log(aps[47].pplOld);
+                
 
 
                 const pointGraphic = new Graphic({
@@ -544,39 +556,47 @@
 
         // change color of point accordint to the population density in an AP
         function changeColor(demoValue) {
-        var color;
-        if (demoValue == 0){
-            color = "89CFF0"
-        }
-        else if (demoValue <= 6) {
-            color = "79db4f"
-        }
-        else if(demoValue <= 10){
-            color = "#ffe3aa"
-        }
-        else if(demoValue <= 16){
-            color = "#f5a038"
-        }
-        else if (demoValue <= 25){
-            color = "#f6711f"
-        }
-        else{
-            color = "#c33910"
-        }
-        return color;
+            var color;
+            if (demoValue == 0){
+                color = "89CFF0"
+            }
+            else if (demoValue <= 6) {
+                color = "79db4f"
+            }
+            else if(demoValue <= 10){
+                color = "#ffe3aa"
+            }
+            else if(demoValue <= 16){
+                color = "#f5a038"
+            }
+            else if (demoValue <= 25){
+                color = "#f6711f"
+            }
+            else{
+                color = "#c33910"
+            }
+            return color;
         }
       
         // add the button to change map layer
         function addBTN() {
             
-        var leg = new Legend({
-            view: view,
-            basemapLegendVisible: true,
-            width: "200px"
-        });
+            var leg = new Legend({
+                view: view,
+                basemapLegendVisible: true,
+                width: "200px"
+            });
 
-        view.ui.add(leg, "bottom-right");
-          
+            var locateBtn = new Locate({
+            view: view
+            });
+
+            view.ui.add(leg, "bottom-right");
+            
+            // Add the locate widget to the top left corner of the view
+            view.ui.add(locateBtn,  "top-left");
+
+
             // SQL query array
             const changeList = ["Escolha um Piso", "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
             let newLayer = changeList[0];
