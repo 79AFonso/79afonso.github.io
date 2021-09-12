@@ -7,11 +7,11 @@
     <title>Mapa da UA</title>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
-    <link href="https://js.arcgis.com/4.14/esri/css/main.css" rel="stylesheet" type="text/css">
+    <link href="https://js.arcgis.com/4.20/esri/css/main.css" rel="stylesheet" type="text/css">
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-database.js"></script>
-    <script type="text/javascript" src="https://js.arcgis.com/4.14/"></script>
+    <script type="text/javascript" src="https://js.arcgis.com/4.20/"></script>
     <style>
     html,
     body,
@@ -19,38 +19,40 @@
     </style>
     <script type="text/javascript">
 
-    var map_p1, map_p2, map_p3, map_p4, map_p5, map;
-    var layer, layer_p1;
-    var graphicsLayer;
+    var map, map_aux;
+    var layer_ua_map, layer_p1_map, layer_p2_map, layer_p3_map, layer_p4_map, layer_p5_map;
+    var layer_ua, layer_p1, layer_p2, layer_p3, layer_p4, layer_p5;
     var locs_APS = [],locs_Piso_1 = [], locs_Piso_2 = [],locs_Piso_3 = [],locs_Piso_4 = [], locs_Piso_5 = [];
     var list_index = [], list_index2 = [];
     var countDB=0;
 
     require([
     "esri/Map",
+    "esri/Color",
     "esri/views/MapView",
     "esri/widgets/Home",
     "esri/widgets/Legend",
     "esri/layers/MapImageLayer",
+    "esri/layers/GroupLayer",
+    "esri/widgets/LayerList",
     "esri/geometry/Extent",
     "esri/Graphic",
     "esri/layers/GraphicsLayer",
     "esri/widgets/Locate",
     "dojo/domReady!"
-    ], function(Map, MapView, Home, Legend, MapImageLayer, Extent, Graphic, GraphicsLayer, Locate) {
+    ], function(Map, Color, MapView, Home, Legend, MapImageLayer, GroupLayer, LayerList , Extent, Graphic, GraphicsLayer, Locate) {
 
         createLayers();
+
+        map = new Map({basemap: "dark-gray-vector"});
 
         var view = new MapView({
             container: "viewDiv",
             zoom: 16,
             center: [-8.659132, 40.632902], //Longitude, latitude
             map: map
-        });
-
+        }); 
         
-
-
         var firebaseConfig = {
         apiKey: "AIzaSyAGlltLGv62NuK7A0Af1TUE2SrE2x1pW4A",
         authDomain: "detiwall-pei.firebaseapp.com",
@@ -158,8 +160,6 @@
                 }
             }
         })
-
-        
         
         var firebaseRef2 = firebase.database().ref("data").limitToLast(10);
         firebaseRef2.once("value", function(snapshot){
@@ -190,9 +190,10 @@
             })
         })
         firebase.analytics();
+
         
         // Popup template
-        const popupOpenspaces = {
+        var popupOpenspaces = {
             "title": "{title}",
             "content": [{
             "type": "fields",
@@ -234,29 +235,197 @@
             ]
         }
 
+        //initializing every point layer
+        var layer_p1_points = new GraphicsLayer();
+        var layer_p2_points = new GraphicsLayer();
+        var layer_p3_points = new GraphicsLayer();
+        var layer_p4_points = new GraphicsLayer();
+        var layer_p5_points = new GraphicsLayer();
+        var layer_ua_points = new GraphicsLayer();
+            
+        //function to sleep until all info is loaded
+        setTimeout(() => {
+            
+            layer_p1_points = createPointLayer(locs_Piso_1, "APs do piso 1");
+            layer_p2_points = createPointLayer(locs_Piso_2, "APs do piso 2");
+            layer_p3_points = createPointLayer(locs_Piso_3, "APs do piso 3");
+            layer_p4_points = createPointLayer(locs_Piso_4, "APs do piso 4");
+            layer_p5_points = createPointLayer(locs_Piso_5, "APs do piso 5");
+            layer_ua_points = createPointLayer(locs_APS, "APs da Universidade");
 
+            //creating a group layer that is a merge of a map layer and a point layer
+            layer_ua = new GroupLayer({
+                title: "Edifícios",
+                visible: false,
+                layers: [layer_ua_map, layer_ua_points],
+                opacity: 0.75
+            });
 
-        addBTN();
+            layer_p1 = new GroupLayer({
+                title: "Piso 1",
+                visible: false,
+                layers: [layer_p1_map, layer_p1_points],
+                opacity: 0.75
+            });
 
+            layer_p2 = new GroupLayer({
+                title: "Piso 2",
+                visible: false,
+                layers: [layer_p2_map, layer_p2_points],
+                opacity: 0.75
+            });
+
+            layer_p3 = new GroupLayer({
+                title: "Piso 3",
+                visible: false,
+                layers: [layer_p3_map, layer_p3_points],
+                opacity: 0.75
+            }); 
+
+            layer_p4 = new GroupLayer({
+                title: "Piso 4",
+                visible: false,
+                layers: [layer_p4_map, layer_p4_points],
+                opacity: 0.75
+            }); 
+
+            layer_p5 = new GroupLayer({
+                title: "Piso 5",
+                visible: false,
+                layers: [layer_p5_map, layer_p5_points],
+                opacity: 0.75
+            });
+
+            //creating the final layer that is the merge of all group layers
+            var groupLayerDemo = new GroupLayer({
+                title: "Pisos da Universidade",
+                visible: true,
+                visibilityMode: "exclusive",
+                layers: [layer_ua, layer_p5, layer_p4, layer_p3, layer_p2, layer_p1],
+                opacity: 0.75
+            });
+
+            map = new Map({basemap: "dark-gray-vector", layers: [groupLayerDemo] });
+            var view = new MapView({
+                container: "viewDiv",
+                zoom: 16,
+                popup: {
+                            dockEnabled: true,
+                            dockOptions: {
+                                breakpoint: false,
+                                position: "bottom-left"
+                            }
+                        },
+                center: [-8.659132, 40.632902], //Longitude, latitude
+                map: map
+            });
+
+            var locateBtn = new Locate({
+                view: view
+            });
+
+            // Add the locate widget to the top left corner of the view
+            view.ui.add(locateBtn, {
+                position: "top-left"
+            });
+            
+            // Creates actions in the LayerList.
+            
+            function defineActions(event) {
+                // The event object contains an item property.
+                // is is a ListItem referencing the associated layer
+                // and other properties. You can control the visibility of the
+                // item, its title, and actions using this object.
+                
+                var item = event.item;
+                
+                if (item.title === "Pisos da Universidade") {
+                    // An array of objects defining actions to place in the LayerList.
+                    // By making this array two-dimensional, you can separate similar
+                    // actions into separate groups with a breaking line.
+                    
+                    item.actionsSections = [
+                        
+                        [
+                            {
+                                title: "Increase opacity",
+                                className: "esri-icon-up",
+                                id: "increase-opacity"
+                            },
+                            {
+                                title: "Decrease opacity",
+                                className: "esri-icon-down",
+                                id: "decrease-opacity"
+                            }
+                        ]
+                    ];
+                }
+            }
+            
+            view.when(function() {
+                // Create the LayerList widget with the associated actions
+                // and add it to the top-right corner of the view.
+                
+                var layerList = new LayerList({
+                    view: view,
+                    // executes for each ListItem in the LayerList
+                    listItemCreatedFunction: defineActions
+                });
+                
+                // Event listener that fires each time an action is triggered
+                
+                layerList.on("trigger-action", function(event) {
+                    // The layer visible in the view at the time of the trigger.
+                    var visibleLayer = layer_ua.visible ? layer_ua : layer_p5, layer_p4, layer_p3, layer_p2, layer_p1;
+                    
+                    // Capture the action id.
+                    var id = event.action.id;
+                    
+                    if (id === "increase-opacity") {
+                        // if the increase-opacity action is triggered, then
+                        // increase the opacity of the GroupLayer by 0.25
+                        
+                        if (groupLayerDemo.opacity < 1) {
+                            groupLayerDemo.opacity += 0.15;
+                        }
+                    } else if (id === "decrease-opacity") {
+                        // if the decrease-opacity action is triggered, then
+                        // decrease the opacity of the GroupLayer by 0.25
+                        
+                        if (groupLayerDemo.opacity > 0) {
+                            groupLayerDemo.opacity -= 0.15;
+                        }
+                    }
+                });
+                
+                // Add widget to the top right corner of the view
+                view.ui.add(layerList, "top-right");
+            });
+            
+        }, 2000);
+
+        
         //Creating each layer at the start of the program
         function createLayers(){
-            layer = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Edifícios_UA/MapServer" });
-            map = new Map({basemap: "dark-gray-vector", layers: [layer] });
-
-            layer_p1 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_1/MapServer" });
-            map_p1 = new Map({basemap: "dark-gray-vector", layers: [layer_p1] });
-
-            var layer_p2 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_2/MapServer" });
-            map_p2 = new Map({basemap: "dark-gray-vector", layers: [layer_p2] });
-
-            var layer_p3 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_3/MapServer" });
-            map_p3 = new Map({basemap: "dark-gray-vector", layers: [layer_p3] });
-
-            var layer_p4 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_4/MapServer" });
-            map_p4 = new Map({basemap: "dark-gray-vector", layers: [layer_p4] });
-
-            var layer_p5 = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_5/MapServer" });
-            map_p5 = new Map({basemap: "dark-gray-vector", layers: [layer_p5] });
+                layer_ua_map = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Edifícios_UA/MapServer",
+                                                title: "Edifícios" 
+                                            });
+                layer_p1_map = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_1/MapServer",
+                                                title: "Piso 1"
+                                             });
+                layer_p2_map = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_2/MapServer",
+                                                title: "Piso 2"
+                                            });
+                layer_p3_map = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_3/MapServer",
+                                                title: "Piso 3"
+                                            });
+                layer_p4_map = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_4/MapServer",
+                                                title: "Piso 4"
+                                            });
+                layer_p5_map = new MapImageLayer({ url: "https://sgt-websig.ua.pt/server/rest/services/Piso_5/MapServer",
+                                             title: "Piso 5"
+                                            });
+            
         }
 
         //Inserting info in arrays so it makes it easier to check id's
@@ -278,193 +447,21 @@
             
         }
 
-        // Change map layer whenever we change the layer on the top right list
-        function changeLayer(view, newLayer) {
+
+        // Returns the point layer of each floor with every AP and the according info
+        function createPointLayer(aps, title){
             
-            // change to layer Piso_1
-            if (newLayer == "Piso 1"){
-
-                view = new MapView({
-                    container: "viewDiv",
-                    map: map_p1,
-                    zoom: 16,
-                    popup: {
-                        dockEnabled: true,
-                        dockOptions: {
-                            breakpoint: false,
-                            position: "bottom-left"
-                        }
-                    },
-                    center: [-8.659132, 40.632902]
-                });
-
-                changeList = ["Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
-
-                addPoints(locs_Piso_1, map_p1);
-                
-            }
-            // change to layer Piso_2
-            else if (newLayer == "Piso 2"){
-
-                view = new MapView({
-                    container: "viewDiv",
-                    map: map_p2,
-                    zoom: 16,
-                    popup: {
-                        dockEnabled: true,
-                        dockOptions: {
-                            breakpoint: false,
-                            position: "bottom-left"
-                        }
-                    },
-                    center: [-8.659132, 40.632902]
-                });
-                changeList = ["Piso 2",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
-
-                addPoints(locs_Piso_2, map_p2);
-            }
-            // change to layer Piso_3
-            else if (newLayer == "Piso 3"){
-
-                view = new MapView({
-                    container: "viewDiv",
-                    map: map_p3,
-                    zoom: 16,
-                    popup: {
-                        dockEnabled: true,
-                        dockOptions: {
-                            breakpoint: false,
-                            position: "bottom-left"
-                        }
-                    },
-                    center: [-8.659132, 40.632902]
-                });
-                changeList = ["Piso 3",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
-
-                addPoints(locs_Piso_3,map_p3);
-            }
-            // change to layer Piso_4
-            else if (newLayer == "Piso 4"){
-
-                view = new MapView({
-                    container: "viewDiv",
-                    map: map_p4,
-                    zoom: 16,
-                    popup: {
-                        dockEnabled: true,
-                        dockOptions: {
-                            breakpoint: false,
-                            position: "bottom-left"
-                        }
-                    },
-                    center: [-8.659132, 40.632902]
-                });
-                changeList = ["Piso 4",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
-
-                addPoints(locs_Piso_4, map_p4);
-            }
-            // change to layer Piso_5
-            else if (newLayer == "Piso 5"){
-
-                view = new MapView({
-                    container: "viewDiv",
-                    map: map_p5,
-                    zoom: 16,
-                    popup: {
-                        dockEnabled: true,
-                        dockOptions: {
-                            breakpoint: false,
-                            position: "bottom-left"
-                        }
-                    },
-                    center: [-8.659132, 40.632902]
-                });
-                changeList = ["Piso 5",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
-
-                addPoints(locs_Piso_5, map_p5);
-
-            }
-            // change to layer Edifícios
-            else if (newLayer == "Edifícios"){
-    
-                view = new MapView({
-                    container: "viewDiv",
-                    map: map,
-                    zoom: 16,
-                    popup: {
-                        dockEnabled: true,
-                        dockOptions: {
-                            breakpoint: false,
-                            position: "bottom-left"
-                        }
-                    },
-                    center: [-8.659132, 40.632902]
-                });
-
-                changeList = ["Edifícios",  "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
-            
-                addPoints(locs_APS, map);
-            
-            }
-
-            var leg = new Legend({
-                    layersInfos:{
-                        layer: graphicsLayer
-                    },
-                    width: "200px"
-                });
-
-            view.ui.add(leg, "bottom-right");
-
-            var locateBtn = new Locate({
-                view: view
-            });
-
-            // Add the locate widget to the top left corner of the view
-            view.ui.add(locateBtn, {
-                position: "top-left"
-            });
-
-            
-            newLayer = changeList[0];
-          
-            // Add SQL UI
-            const select = document.createElement("select","");
-            select.setAttribute("class", "esri-widget esri-select");
-            select.setAttribute("style", "width: 200px; font-family: 'Avenir Next'; font-size: 1em");
-            changeList.forEach(function(query){
-                let option = document.createElement("option");
-                option.innerHTML = query;
-                option.value = query;
-                select.appendChild(option);
-            });
-
-            view.ui.add(select, "top-right");
-
-            // Listen for changes
-            select.addEventListener('change', (event) => {
-                newLayer = event.target.value;
-                console.log(newLayer);
-                changeLayer(view, newLayer);
-
-            });
-            
-        }
-
-        // Add Points according to an array that contains coordinates
-        function addPoints(aps,mapa){
-            
-            graphicsLayer = new GraphicsLayer();
-            mapa.add(graphicsLayer);
+            var graphicsLayer = new GraphicsLayer({title : title});
+               
             for (i = 0; i < aps.length; i++) {
                 var colorTest = changeColor(aps[i].pplLive);
-                
-                const point = { //Create a point
+
+                var point = { //Create a point
                     type: "point",
                     longitude: aps[i].long,
                     latitude: aps[i].lat
                 };
-                const simpleMarkerSymbol = {
+                var simpleMarkerSymbol = {
                     type: "simple-marker",
                     color: colorTest, 
                     size: (aps[i].pplLive/2)+4,
@@ -475,7 +472,7 @@
                 };
                 
                 //Attributes of popup
-                const attributes1 = {
+                var attributes1 = {
                     title: aps[i].apName,
                     NUM_PES: aps[i].pplLive,
                     NUM_PISO: aps[i].Piso,
@@ -491,9 +488,7 @@
                     
                 }
                 
-
-
-                const pointGraphic = new Graphic({
+                var pointGraphic = new Graphic({
                     geometry: point,
                     symbol: simpleMarkerSymbol,
                     
@@ -502,66 +497,21 @@
                 });
 
                 graphicsLayer.add(pointGraphic);
-                   
+ 
             }
 
-            
+            return graphicsLayer;
         }
 
-        /*function addPoligon(aps,mapa){
-            
-            graphicsLayer = new GraphicsLayer();
-            mapa.add(graphicsLayer);
-            for (i = 0; i < aps.length; i++) {
-                var colorTest = changeColor(aps[i].pplLive);
-                
-                const point = { //Create a point
-                    type: "point",
-                    longitude: aps[i].long,
-                    latitude: aps[i].lat
-                };
-                const simpleMarkerSymbol = {
-                    type: "simple-marker",
-                    color: colorTest, 
-                    size: (aps[i].people/2)+4,
-                    outline: {
-                        color: "black",
-                        width: 0.4
-                    }
-                };
-                
-                //Attributes of popup
-                const attributes1 = {
-                    title: aps[i].apName,
-                    NUM_PES: aps[i].people,
-                    NUM_PISO: aps[i].Piso
-                    
-                }
-
-
-                const pointGraphic = new Graphic({
-                    geometry: point,
-                    symbol: simpleMarkerSymbol,
-                    
-                    attributes : attributes1,
-                    popupTemplate: popupOpenspaces
-                });
-
-                graphicsLayer.add(pointGraphic);
-                   
-            }
-
-            
-        }*/
 
         // change color of point accordint to the population density in an AP
         function changeColor(demoValue) {
             var color;
             if (demoValue == 0){
-                color = "89CFF0"
+                color = "#89CFF0"
             }
             else if (demoValue <= 6) {
-                color = "79db4f"
+                color = "#79db4f"
             }
             else if(demoValue <= 10){
                 color = "#ffe3aa"
@@ -576,53 +526,6 @@
                 color = "#c33910"
             }
             return color;
-        }
-      
-        // add the button to change map layer
-        function addBTN() {
-            
-            var leg = new Legend({
-                view: view,
-                basemapLegendVisible: true,
-                width: "200px"
-            });
-
-            var locateBtn = new Locate({
-            view: view
-            });
-
-            view.ui.add(leg, "bottom-right");
-            
-            // Add the locate widget to the top left corner of the view
-            view.ui.add(locateBtn,  "top-left");
-
-
-            // SQL query array
-            const changeList = ["Escolha um Piso", "Piso 1",  "Piso 2", "Piso 3", "Piso 4", "Piso 5", "Edifícios"];
-            let newLayer = changeList[0];
-          
-            // Add SQL UI
-            const select = document.createElement("select","");
-            select.setAttribute("class", "esri-widget esri-select");
-            select.setAttribute("style", "width: 200px; font-family: 'Avenir Next'; font-size: 1em");
-            changeList.forEach(function(query){
-                let option = document.createElement("option");
-                option.innerHTML = query;
-                option.value = query;
-                select.appendChild(option);
-            });
-
-            view.ui.add(select, "top-right");
-
-            // Listen for changes
-            select.addEventListener('change', (event) => {
-                newLayer = event.target.value;
-
-                console.log(newLayer);
-
-                changeLayer(view, newLayer);
-
-            });
         }
 
         // function to update the ammount of people in each AP throughout the last hour
