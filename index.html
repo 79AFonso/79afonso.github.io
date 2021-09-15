@@ -19,12 +19,12 @@
     </style>
     <script type="text/javascript">
 
-    var map, map_aux;
+    var map;
     var layer_ua_map, layer_p1_map, layer_p2_map, layer_p3_map, layer_p4_map, layer_p5_map;
     var layer_ua, layer_p1, layer_p2, layer_p3, layer_p4, layer_p5;
     var locs_APS = [],locs_Piso_1 = [], locs_Piso_2 = [],locs_Piso_3 = [],locs_Piso_4 = [], locs_Piso_5 = [];
     var list_index = [], list_index2 = [];
-    var countDB=0;
+    var countDB=0, loading=0;
 
     require([
     "esri/Map",
@@ -40,7 +40,7 @@
     "esri/layers/GraphicsLayer",
     "esri/widgets/Locate",
     "dojo/domReady!"
-    ], function(Map, Color, MapView, Home, Legend, MapImageLayer, GroupLayer, LayerList , Extent, Graphic, GraphicsLayer, Locate) {
+    ], function (Map, Color, MapView, Home, Legend, MapImageLayer, GroupLayer, LayerList , Extent, Graphic, GraphicsLayer, Locate) {
 
         createLayers();
 
@@ -53,7 +53,7 @@
             map: map
         }); 
         
-        var firebaseConfig = {
+        /*var firebaseConfig = {
         apiKey: "AIzaSyAGlltLGv62NuK7A0Af1TUE2SrE2x1pW4A",
         authDomain: "detiwall-pei.firebaseapp.com",
         databaseURL: "https://detiwall-pei-default-rtdb.firebaseio.com",
@@ -185,11 +185,14 @@
                 }
                 //after getting data from the last hour we return true in order to leave the cicle
                 //console.log(countDB);
-                if (countDB == 9) return true;
+                if (countDB == 9){
+                    console.log("SAIR!")
+                    return true;
+                } 
                 countDB++;
             })
         })
-        firebase.analytics();
+        firebase.analytics();*/
 
         
         // Popup template
@@ -235,17 +238,23 @@
             ]
         }
 
-        //initializing every point layer
-        var layer_p1_points = new GraphicsLayer();
-        var layer_p2_points = new GraphicsLayer();
-        var layer_p3_points = new GraphicsLayer();
-        var layer_p4_points = new GraphicsLayer();
-        var layer_p5_points = new GraphicsLayer();
-        var layer_ua_points = new GraphicsLayer();
+        awaitLayers();
+
+        async function awaitLayers(){
+            //initializing every point layer
+            var layer_p1_points = new GraphicsLayer();
+            var layer_p2_points = new GraphicsLayer();
+            var layer_p3_points = new GraphicsLayer();
+            var layer_p4_points = new GraphicsLayer();
+            var layer_p5_points = new GraphicsLayer();
+            var layer_ua_points = new GraphicsLayer();
+                
+            //function to sleep until all info is loaded
+            const result = await readDB();
+            console.log("DEBUG!");
+            console.log(result);
             
-        //function to sleep until all info is loaded
-        setTimeout(() => {
-            
+                
             layer_p1_points = createPointLayer(locs_Piso_1, "APs do piso 1");
             layer_p2_points = createPointLayer(locs_Piso_2, "APs do piso 2");
             layer_p3_points = createPointLayer(locs_Piso_3, "APs do piso 3");
@@ -401,8 +410,155 @@
                 // Add widget to the top right corner of the view
                 view.ui.add(layerList, "top-right");
             });
+                
             
-        }, 5000);
+        }
+
+        function readDB(){
+            return new Promise(resolve => {
+                var firebaseConfig = {
+                apiKey: "AIzaSyAGlltLGv62NuK7A0Af1TUE2SrE2x1pW4A",
+                authDomain: "detiwall-pei.firebaseapp.com",
+                databaseURL: "https://detiwall-pei-default-rtdb.firebaseio.com",
+                projectId: "detiwall-pei",
+                storageBucket: "detiwall-pei.appspot.com",
+                messagingSenderId: "251921800960",
+                appId: "1:251921800960:web:ae6613c0a2c38220041de5",
+                measurementId: "G-K70JYWB1R3"
+                };
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+                var firebaseRef = firebase.database().ref("localizacao");
+                firebaseRef.once("value", function(snapshot){
+                    var data = snapshot.val();
+                    var countP1=0,countP2=0,countP3=0,countP4=0,countP5=0,countAp=0;
+                    // cicle through all access points
+                    for(let i in data){
+                        var lat = data[i].latitude;
+                        var long =data[i].longitude
+                        if ((!isNaN(lat) && !lat.length==0) && (!isNaN(long) && !long.length==0)){
+                            //Add every access point from floor 1 to an array
+                            if(data[i].Piso==="1"){
+                                locs_Piso_1.push({
+                                    "apName": data[i].name,
+                                    "id": parseInt(data[i].id,10),
+                                    "long": long,
+                                    "lat": lat,
+                                    "Piso": data[i].Piso,
+                                    "pplLive": 0,
+                                    "pplOld" : new Array(10).fill(0)
+                                })
+                                insListInd(data[i].id, data[i].Piso, countP1, 0);
+                                countP1++;
+                            }
+                            //Add every access point from floor 2 to an array
+                            else if(data[i].Piso=="2"){
+                                locs_Piso_2.push({
+                                    "apName": data[i].name,
+                                    "id": data[i].id,
+                                    "long": long,
+                                    "lat": lat,
+                                    "Piso": data[i].Piso,
+                                    "pplLive": 0,
+                                    "pplOld": new Array(10).fill(0)
+                                })
+                                insListInd(data[i].id, data[i].Piso, countP2, 0);
+                                countP2++;
+                            }
+                            //Add every access point from floor 3 to an array
+                            else if(data[i].Piso=="3"){
+                                locs_Piso_3.push({
+                                    "id": data[i].id,
+                                    "apName": data[i].name,
+                                    "long": long,
+                                    "lat": lat,
+                                    "Piso": data[i].Piso,
+                                    "pplLive": 0,
+                                    "pplOld": new Array(10).fill(0)
+                                })
+                                insListInd(data[i].id, data[i].Piso, countP3, 0);
+                                countP3++;
+                            }
+                            //Add every access point from floor 4 to an array
+                            else if(data[i].Piso=="4"){
+                                locs_Piso_4.push({
+                                    "apName": data[i].name,
+                                    "id": data[i].id,
+                                    "long": long,
+                                    "lat": lat,
+                                    "Piso": data[i].Piso,
+                                    "pplLive": 0,
+                                    "pplOld": new Array(10).fill(0)
+                                })
+                                insListInd(data[i].id, data[i].Piso, countP4, 0);
+                                countP4++;
+                            }
+                            //Add every access point from floor 5 to an array
+                            else if(data[i].Piso==="5"){
+                                locs_Piso_5.push({
+                                    "apName": data[i].name,
+                                    "id": data[i].id,
+                                    "long": long,
+                                    "lat": lat,
+                                    "Piso": data[i].Piso,
+                                    "pplLive": 0,
+                                    "pplOld": new Array(10).fill(0)
+                                })
+                                insListInd(data[i].id, data[i].Piso, countP5,0);
+                                countP5++;
+                            }
+                            //Add every access point from every floor to an array
+                            locs_APS.push({
+                                "apName": data[i].name,
+                                "id": data[i].id,
+                                "long": long,
+                                "lat": lat,
+                                "Piso": data[i].Piso,
+                                "pplLive": 0,
+                                "pplOld": new Array(10).fill(0)
+                            })
+                            insListInd(data[i].id, data[i].Piso, countAp, 1);
+                            countAp++;
+                        
+                        }
+                    }
+                })
+                
+                var firebaseRef2 = firebase.database().ref("data").limitToLast(10);
+                firebaseRef2.once("value", function(snapshot){
+                    snapshot.forEach(function(element){
+                        var data = element.val().accessPoints;
+                        for(let i in data){
+                            // Check if the id of each access point exists in the database
+                            const result = list_index.findIndex(aux => aux.id == data[i].id);   
+                            if (result>=0){
+                                var idx = list_index[result].index;
+                                var ppl = data[i].clientCount;
+                                var floor = list_index[result].piso;
+                                // Add number of people connected to each AP
+                                // first checks floor, then updates the array according to the floor
+                                if (floor == "1") addOldData(locs_Piso_1, idx, ppl, countDB);
+                                else if (floor == "2") addOldData(locs_Piso_2, idx, ppl, countDB);
+                                else if (floor == "3") addOldData(locs_Piso_3, idx, ppl, countDB);
+                                else if (floor == "4") addOldData(locs_Piso_4, idx, ppl, countDB);
+                                else if (floor == "5") addOldData(locs_Piso_5, idx, ppl, countDB);
+                                addOldData(locs_APS, list_index2[result].index, ppl, countDB);
+                                
+                            }
+                        }
+                        //after getting data from the last hour we return true in order to leave the cicle
+                        //console.log(countDB);
+                        if (countDB == 9){
+                            return true;
+                        } 
+                        countDB++;
+                    })
+                    resolve('resolved');
+                })
+                firebase.analytics();
+                
+            });
+        }
 
         
         //Creating each layer at the start of the program
