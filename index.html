@@ -402,7 +402,7 @@
                 view.ui.add(layerList, "top-right");
             });
             
-        }, 2500);
+        }, 3000);
 
         
         //Creating each layer at the start of the program
@@ -429,8 +429,8 @@
         }
 
         //Inserting info in arrays so it makes it easier to check id's
-        function insListInd(id, piso, listCount, HELPCHANGENAME) {
-            if (HELPCHANGENAME ==0){
+        function insListInd(id, piso, listCount, verify ) {
+            if (verify == 0 ){
                 list_index.push({
                                 "id": id,
                                 "piso": piso,
