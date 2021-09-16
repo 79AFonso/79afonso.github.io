@@ -16,6 +16,55 @@
     html,
     body,
     #viewDiv {padding: 0;margin: 0;height: 100%;width: 100%;}
+
+    #size-theme-container {
+        padding: 10px 10px 5px 10px;
+    }
+    #symbol-style-container {
+        padding: 5px 10px 5px 10px;
+    }
+    .dot0ppl {
+        height: 15px;
+        width: 15px;
+        background-color: #89CFF0;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot1to6ppl {
+        height: 15px;
+        width: 15px;
+        background-color: #79db4f;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot7to10ppl {
+        height: 15px;
+        width: 15px;
+        background-color: #ffe3aa;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot11to16ppl {
+        height: 15px;
+        width: 15px;
+        background-color: #f5a038;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot17to25ppl {
+        height: 15px;
+        width: 15px;
+        background-color: #f6711f;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot26ppl {
+        height: 15px;
+        width: 15px;
+        background-color: #c33910;
+        border-radius: 50%;
+        display: inline-block;
+    }
     </style>
     <script type="text/javascript">
 
@@ -52,148 +101,6 @@
             center: [-8.659132, 40.632902], //Longitude, latitude
             map: map
         }); 
-        
-        /*var firebaseConfig = {
-        apiKey: "AIzaSyAGlltLGv62NuK7A0Af1TUE2SrE2x1pW4A",
-        authDomain: "detiwall-pei.firebaseapp.com",
-        databaseURL: "https://detiwall-pei-default-rtdb.firebaseio.com",
-        projectId: "detiwall-pei",
-        storageBucket: "detiwall-pei.appspot.com",
-        messagingSenderId: "251921800960",
-        appId: "1:251921800960:web:ae6613c0a2c38220041de5",
-        measurementId: "G-K70JYWB1R3"
-        };
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        var firebaseRef = firebase.database().ref("localizacao");
-        firebaseRef.once("value", function(snapshot){
-            var data = snapshot.val();
-            var countP1=0,countP2=0,countP3=0,countP4=0,countP5=0,countAp=0;
-            // cicle through all access points
-            for(let i in data){
-                var lat = data[i].latitude;
-                var long =data[i].longitude
-                if ((!isNaN(lat) && !lat.length==0) && (!isNaN(long) && !long.length==0)){
-                    //Add every access point from floor 1 to an array
-                    if(data[i].Piso==="1"){
-                        locs_Piso_1.push({
-                            "apName": data[i].name,
-                            "id": parseInt(data[i].id,10),
-                            "long": long,
-                            "lat": lat,
-                            "Piso": data[i].Piso,
-                            "pplLive": 0,
-                            "pplOld" : new Array(10).fill(0)
-                        })
-                        insListInd(data[i].id, data[i].Piso, countP1, 0);
-                        countP1++;
-                    }
-                    //Add every access point from floor 2 to an array
-                    else if(data[i].Piso=="2"){
-                        locs_Piso_2.push({
-                            "apName": data[i].name,
-                            "id": data[i].id,
-                            "long": long,
-                            "lat": lat,
-                            "Piso": data[i].Piso,
-                            "pplLive": 0,
-                            "pplOld": new Array(10).fill(0)
-                        })
-                        insListInd(data[i].id, data[i].Piso, countP2, 0);
-                        countP2++;
-                    }
-                    //Add every access point from floor 3 to an array
-                    else if(data[i].Piso=="3"){
-                        locs_Piso_3.push({
-                            "id": data[i].id,
-                            "apName": data[i].name,
-                            "long": long,
-                            "lat": lat,
-                            "Piso": data[i].Piso,
-                            "pplLive": 0,
-                            "pplOld": new Array(10).fill(0)
-                        })
-                        insListInd(data[i].id, data[i].Piso, countP3, 0);
-                        countP3++;
-                    }
-                    //Add every access point from floor 4 to an array
-                    else if(data[i].Piso=="4"){
-                        locs_Piso_4.push({
-                            "apName": data[i].name,
-                            "id": data[i].id,
-                            "long": long,
-                            "lat": lat,
-                            "Piso": data[i].Piso,
-                            "pplLive": 0,
-                            "pplOld": new Array(10).fill(0)
-                        })
-                        insListInd(data[i].id, data[i].Piso, countP4, 0);
-                        countP4++;
-                    }
-                    //Add every access point from floor 5 to an array
-                    else if(data[i].Piso==="5"){
-                        locs_Piso_5.push({
-                            "apName": data[i].name,
-                            "id": data[i].id,
-                            "long": long,
-                            "lat": lat,
-                            "Piso": data[i].Piso,
-                            "pplLive": 0,
-                            "pplOld": new Array(10).fill(0)
-                        })
-                        insListInd(data[i].id, data[i].Piso, countP5,0);
-                        countP5++;
-                    }
-                    //Add every access point from every floor to an array
-                    locs_APS.push({
-                        "apName": data[i].name,
-                        "id": data[i].id,
-                        "long": long,
-                        "lat": lat,
-                        "Piso": data[i].Piso,
-                        "pplLive": 0,
-                        "pplOld": new Array(10).fill(0)
-                    })
-                    insListInd(data[i].id, data[i].Piso, countAp, 1);
-                    countAp++;
-                
-                }
-            }
-        })
-        
-        var firebaseRef2 = firebase.database().ref("data").limitToLast(10);
-        firebaseRef2.once("value", function(snapshot){
-            snapshot.forEach(function(element){
-                var data = element.val().accessPoints;
-                for(let i in data){
-                    // Check if the id of each access point exists in the database
-                    const result = list_index.findIndex(aux => aux.id == data[i].id);   
-                    if (result>=0){
-                        var idx = list_index[result].index;
-                        var ppl = data[i].clientCount;
-                        var floor = list_index[result].piso;
-                        // Add number of people connected to each AP
-                        // first checks floor, then updates the array according to the floor
-                        if (floor == "1") addOldData(locs_Piso_1, idx, ppl, countDB);
-                        else if (floor == "2") addOldData(locs_Piso_2, idx, ppl, countDB);
-                        else if (floor == "3") addOldData(locs_Piso_3, idx, ppl, countDB);
-                        else if (floor == "4") addOldData(locs_Piso_4, idx, ppl, countDB);
-                        else if (floor == "5") addOldData(locs_Piso_5, idx, ppl, countDB);
-                        addOldData(locs_APS, list_index2[result].index, ppl, countDB);
-                        
-                    }
-                }
-                //after getting data from the last hour we return true in order to leave the cicle
-                //console.log(countDB);
-                if (countDB == 9){
-                    console.log("SAIR!")
-                    return true;
-                } 
-                countDB++;
-            })
-        })
-        firebase.analytics();*/
-
         
         // Popup template
         var popupOpenspaces = {
@@ -337,6 +244,8 @@
             view.ui.add(locateBtn, {
                 position: "top-left"
             });
+
+            
             
             // Creates actions in the LayerList.
             
@@ -409,8 +318,14 @@
                 
                 // Add widget to the top right corner of the view
                 view.ui.add(layerList, "top-right");
+
+                const legend = new Legend({
+                    view
+                });
+                view.ui.add("container-div", "top-right");
             });
-                
+            
+            
             
         }
 
@@ -709,5 +624,20 @@
         <div class="esri-view-user-storage">
         </div>
     </div>
+    <div id="container-div" class="esri-widget">
+        <div id="theme-container" class="esri-widget">
+          <div id="size-theme-container">
+            Legenda :
+            <br> Quanto maior tamanho do ponto maior <br> o número de pessoas ligadas a esse AP
+            <br>
+            <br><span class="dot0ppl"></span> 0 pessoas
+            <br><span class="dot1to6ppl"></span> 1-6 pessoas
+            <br><span class="dot7to10ppl"></span> 7-10 pessoas
+            <br><span class="dot11to16ppl"></span> 11-16 pessoas
+            <br><span class="dot17to25ppl"></span> 17-25 pessoas
+            <br><span class="dot26ppl"></span> &#8805; 26 pessoas
+          </div>
+        </div>
+      </div>
     </body>
 </html>
